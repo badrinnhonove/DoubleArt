@@ -20,13 +20,14 @@
             <li>Select a palette image; the image with the colors to use (fewer colors = better results).</li>
             <li>Wait a bit if you are coloring a large image...</li>
             <li>Scroll down, right click, and save your new image!</li>
+            <li><a id="dlLink" href=""><strong>Download!</strong></a> (right-click -> save link as...)</li>
         </ol>
         <table>
             <tr>
-                <td>Target image: </td><td><input id="targetFile" type="file" accept="image/*" /></td>
+                <td><strong>Target image: </strong></td><td><input id="targetFile" type="file" accept="image/*" /></td>
             </tr>
             <tr>
-                <td>Palette image: </td><td><input id="paletteFile" type="file" accept="image/*"/></td>
+                <td><strong>Palette image: </strong></td><td><input id="paletteFile" type="file" accept="image/*"/></td>
             </tr>
         </table>
         
@@ -139,7 +140,7 @@
                     outData.data[origIndex + 3] = 255;
                 }
                 mOutCtx.putImageData(outData, 0, 0);
-                console.log(mOutCtx);
+                document.getElementById("dlLink").href = mOutCanvas.toDataURL();
             }
             
             document.getElementById("targetFile").addEventListener("change", targetFileUpdated);
