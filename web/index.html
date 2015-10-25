@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Double Art</title>
+        <style>
+            body {
+                font-family: arial;
+            }
+            
+            .inputImage {
+                max-height: 300px;
+            }
+        </style>
+    </head>
+    
+    <body>
+        <table>
+            <tr>
+                <td>Target image: </td><td><input id="targetFile" type="file" accept="image/*" /></td>
+            </tr>
+            <tr>
+                <td>Palette image: </td><td><input id="paletteFile" type="file" accept="image/*"/></td>
+            </tr>
+        </table>
+        
+        <br>
+        <img class="inputImage" id="targetImage" src="" />
+        <img class="inputImage" id="paletteImage" src="" />
+        
+        <br>
+        <canvas id="outCanvas"></canvas>
+        
+        <script>
+            var mOutCanvas = document.getElementById("outCanvas");
+            var mOutCtx = mOutCanvas.getContext("2d");
+
+            var targetImage;
+            var paletteImage;
+            
+            document.getElementById("targetFile").addEventListener("change", targetFileUpdated);
+            document.getElementById("paletteFile").addEventListener("change", paletteFileUpdated);
+            
+            var mWidth = 0;
+            var mHeight = 0;
+            var targetImageData;
+            var paletteImageData;
+            
+            var TARGET_IMAGE_ID = "targetImage";
+            var PALETTE_IMAGE_ID = "paletteImage";
+            
+            var mTargetLoaded = false;
+            var mPaletteLoaded = false;
+            
+            function targetFileUpdated(e) {
+                loadImage(e.target.files[0], TARGET_IMAGE_ID);
+            }
+            
+            function paletteFileUpdated(e) {
+                loadImage(e.target.files[0], PALETTE_IMAGE_ID);
+            }
+            
+            function loadImage(file, imgId) {
+                if (!file) return;
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    var data = e.target.result;
+                    
+                    // Set preview image.
+                    document.getElementById(imgId).src = data;
+                    
+                    // Load full-res for invisible canvas.
+                    var image = new Image();
+                    image.onload = function(ev) {
+                        if (imgId == TARGET_IMAGE_ID) {
+                            targetImageData = convertToArray(ev.target);
+                            targetImageData.sort(compareColorsAverage);
+                            mWidth = ev.target.width;
+                            mHeight = ev.target.height;
+                            mTargetLoaded = true;
+                            tryRendering();
+                        }
+                        if (imgId ==  PALETTE_IMAGE_ID) {
+                            paletteImageData = convertToArray(ev.target);
+                            paletteImageData.sort(compareColorsAverage);
+                            mPaletteLoaded = true;
+                            tryRendering();
+                        }
+                    };
+                    image.src = data;
+                }
+                reader.readAsDataURL(file);
+            }
+            
+            function compareColorsAverage(c1, c2) {
+                var a1 = (c1.R + c1.G + c1.B) / 3.0;
+                var a2 = (c2.R + c2.G + c2.B) / 3.0;
+                return a1 - a2;
+            }
+            
+            function createColor(r, g, b, index) {
+                return {"R":r, "G":g, "B":b, "I":index};
+            }
+            
+            function convertToArray(img) {
+                var tempCanvas = document.createElement("canvas");
+                tempCanvas.width = img.width;
+                tempCanvas.height = img.height;
+                var ctx = tempCanvas.getContext("2d");
+                ctx.drawImage(img, 0, 0, img.width, img.height);
+                var data = ctx.getImageData(0, 0, img.width, img.height).data;
+                var out = new Array(data.length/4); // 4 because RGBA
+                for (var i = 0; i < data.length; i += 4) {
+                    out[i/4] = createColor(data[i], data[i+1], data[i+2], i/4);
+                }
+                return out;
+            }
+            
+            function tryRendering() {
+                // Make sure there are two images before trying to render.
+                if (!mTargetLoaded || !mPaletteLoaded) return;
+                
+                mOutCanvas.width = mWidth;
+                mOutCanvas.height = mHeight;
+                
+                var outData = mOutCtx.createImageData(mWidth, mHeight);
+                
+                for (var i = 0; i < targetImageData.length; i++) {
+                    var percent = i / targetImageData.length;
+                    var origIndex = targetImageData[i].I * 4;
+                    var curColor =
+                            paletteImageData[Math.ceil(percent * (paletteImageData.length-1))];
+                    outData.data[origIndex] = curColor.R;
+                    outData.data[origIndex + 1] = curColor.G;
+                    outData.data[origIndex + 2] = curColor.B;
+                    outData.data[origIndex + 3] = 255;
+                }
+                mOutCtx.putImageData(outData, 0, 0);
+                console.log(mOutCtx);
+            }
+        </script>
+    </body>
+</html>
