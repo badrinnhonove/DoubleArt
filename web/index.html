@@ -31,8 +31,8 @@
         </table>
         
         <br>
-        <img class="inputImage" id="targetImage" src="" />
-        <img class="inputImage" id="paletteImage" src="" />
+        <img class="inputImage" id="mTargetImage" src="" />
+        <img class="inputImage" id="mPaletteImage" src="" />
         
         <br>
         <canvas id="outCanvas"></canvas>
@@ -41,19 +41,16 @@
             var mOutCanvas = document.getElementById("outCanvas");
             var mOutCtx = mOutCanvas.getContext("2d");
 
-            var targetImage;
-            var paletteImage;
-            
-            document.getElementById("targetFile").addEventListener("change", targetFileUpdated);
-            document.getElementById("paletteFile").addEventListener("change", paletteFileUpdated);
+            var mTargetImage;
+            var mPaletteImage;
             
             var mWidth = 0;
             var mHeight = 0;
-            var targetImageData;
-            var paletteImageData;
+            var mTargetImageData;
+            var mPaletteImageData;
             
-            var TARGET_IMAGE_ID = "targetImage";
-            var PALETTE_IMAGE_ID = "paletteImage";
+            var TARGET_IMAGE_ID = "mTargetImage";
+            var PALETTE_IMAGE_ID = "mPaletteImage";
             
             var mTargetLoaded = false;
             var mPaletteLoaded = false;
@@ -79,16 +76,16 @@
                     var image = new Image();
                     image.onload = function(ev) {
                         if (imgId == TARGET_IMAGE_ID) {
-                            targetImageData = convertToArray(ev.target);
-                            targetImageData.sort(compareColorsAverage);
+                            mTargetImageData = convertToArray(ev.target);
+                            mTargetImageData.sort(compareColorsAverage);
                             mWidth = ev.target.width;
                             mHeight = ev.target.height;
                             mTargetLoaded = true;
                             tryRendering();
                         }
                         if (imgId ==  PALETTE_IMAGE_ID) {
-                            paletteImageData = convertToArray(ev.target);
-                            paletteImageData.sort(compareColorsAverage);
+                            mPaletteImageData = convertToArray(ev.target);
+                            mPaletteImageData.sort(compareColorsAverage);
                             mPaletteLoaded = true;
                             tryRendering();
                         }
@@ -131,11 +128,11 @@
                 
                 var outData = mOutCtx.createImageData(mWidth, mHeight);
                 
-                for (var i = 0; i < targetImageData.length; i++) {
-                    var percent = i / targetImageData.length;
-                    var origIndex = targetImageData[i].I * 4;
+                for (var i = 0; i < mTargetImageData.length; i++) {
+                    var percent = i / mTargetImageData.length;
+                    var origIndex = mTargetImageData[i].I * 4;
                     var curColor =
-                            paletteImageData[Math.ceil(percent * (paletteImageData.length-1))];
+                            mPaletteImageData[Math.ceil(percent * (mPaletteImageData.length-1))];
                     outData.data[origIndex] = curColor.R;
                     outData.data[origIndex + 1] = curColor.G;
                     outData.data[origIndex + 2] = curColor.B;
@@ -144,6 +141,10 @@
                 mOutCtx.putImageData(outData, 0, 0);
                 console.log(mOutCtx);
             }
+            
+            document.getElementById("targetFile").addEventListener("change", targetFileUpdated);
+            document.getElementById("paletteFile").addEventListener("change", paletteFileUpdated);
+            
         </script>
     </body>
 </html>
