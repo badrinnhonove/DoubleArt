@@ -20,8 +20,18 @@
             <li>Select a palette image; the image with the colors to use (fewer colors = better results).</li>
             <li>Wait a bit if you are coloring a large image...</li>
             <li>Scroll down, right click, and save your new image!</li>
-            <li><a id="dlLink" href=""><strong>Download!</strong></a> (right-click -> save link as...)</li>
+            <li><a id="dlLink" href=""><strong>Download!</strong></a> (right-click -> save link as...)<br/><br/></li>
+            <li>(Advanced) Select an comparison algorithm: 
+                <select id="mComparisonAlgorithm" name="comparisonAlgorithm">
+                    <option value="rgbAverage">RGB Average</option>
+                    <option value="lightLevel">Light Level</option>
+                    <option value="hueValue">Hue Value</option>
+                </select>
+                <br/>
+                <em>Changing this will re-sort both images (computationally expensive)!</em>
+            </li>
         </ol>
+
         <table>
             <tr>
                 <td><strong>Target image: </strong></td><td><input id="targetFile" type="file" accept="image/*" /></td>
@@ -51,18 +61,38 @@
             var mTargetImageData;
             var mPaletteImageData;
             
+            var mAlgorithm;
+            
             var TARGET_IMAGE_ID = "mTargetImage";
             var PALETTE_IMAGE_ID = "mPaletteImage";
+            var COMPARISON_ALGORITHM_ID = "mComparisonAlgorithm";
             
             var mTargetLoaded = false;
             var mPaletteLoaded = false;
             
             function targetFileUpdated(e) {
-                loadImage(e.target.files[0], TARGET_IMAGE_ID);
+                loadImage(document.getElementById("targetFile").files[0], TARGET_IMAGE_ID);
             }
             
             function paletteFileUpdated(e) {
-                loadImage(e.target.files[0], PALETTE_IMAGE_ID);
+                loadImage(document.getElementById("paletteFile").files[0], PALETTE_IMAGE_ID);
+            }
+            
+            function algorithmUpdated(e) {
+                var name = document.getElementById(COMPARISON_ALGORITHM_ID).value;
+                // Set the sorting function based on names in 'select' element.
+                if (name == "rgbAverage") {
+                    mAlgorithm = compareColorsAverage;
+                } else if (name == "lightLevel") {
+                    mAlgorithm = compareColorsLight;
+                } else if (name == "hueValue") {
+                    mAlgorithm = compareColorsHue;
+                }
+                
+                targetFileUpdated();
+                paletteFileUpdated();
+                
+                tryRendering()
             }
             
             function loadImage(file, imgId) {
@@ -79,7 +109,7 @@
                     image.onload = function(ev) {
                         if (imgId == TARGET_IMAGE_ID) {
                             mTargetImageData = convertToArray(ev.target);
-                            mTargetImageData.sort(compareColorsAverage);
+                            mTargetImageData.sort(mAlgorithm);
                             mWidth = ev.target.width;
                             mHeight = ev.target.height;
                             mTargetLoaded = true;
@@ -87,7 +117,7 @@
                         }
                         if (imgId ==  PALETTE_IMAGE_ID) {
                             mPaletteImageData = convertToArray(ev.target);
-                            mPaletteImageData.sort(compareColorsAverage);
+                            mPaletteImageData.sort(mAlgorithm);
                             mPaletteLoaded = true;
                             tryRendering();
                         }
@@ -97,10 +127,31 @@
                 reader.readAsDataURL(file);
             }
             
+            /**
+             * Compare two colors based on the average of their RGB components.
+             */
             function compareColorsAverage(c1, c2) {
                 var a1 = (c1.R + c1.G + c1.B) / 3.0;
                 var a2 = (c2.R + c2.G + c2.B) / 3.0;
                 return a1 - a2;
+            }
+            
+            /**
+             * Compare two colors based on their light level (HSL).
+             */
+            function compareColorsLight(c1, c2) {
+                var l1 = ImageUtils.rgbToHsl(c1.R, c1.G, c1.B).L;
+                var l2 = ImageUtils.rgbToHsl(c2.R, c2.G, c2.B).L;
+                return l1 - l2;
+            }
+            
+            /**
+             * Compare two colors based on their hue (HSL).
+             */
+            function compareColorsHue(c1, c2) {
+                var h1 = ImageUtils.rgbToHsl(c1.R, c1.G, c1.B).H;
+                var h2 = ImageUtils.rgbToHsl(c2.R, c2.G, c2.B).H;
+                return h1 - h2;
             }
             
             function createColor(r, g, b, index) {
@@ -146,6 +197,9 @@
             
             document.getElementById("targetFile").addEventListener("change", targetFileUpdated);
             document.getElementById("paletteFile").addEventListener("change", paletteFileUpdated);
+            document.getElementById("mComparisonAlgorithm").addEventListener("change", algorithmUpdated);
+            
+            algorithmUpdated();
             
         </script>
     </body>
