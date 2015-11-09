@@ -7,6 +7,7 @@ window.ImageUtils = {
      * @param hue The hue component of the color in degrees [0, 360).
      * @param sat The saturation component of the color in range [0, 1].
      * @param light The lightness component of the color in range [0, 1].
+     * @return RGB color object {"R": INT, "G": INT, "B": INT} where components are [0, 255].
      */
     "hslToRgb" : function(hue, sat, light) {
         var c = (1 - Math.abs((2 * light) - 1)) * sat;
@@ -31,9 +32,9 @@ window.ImageUtils = {
             result = {"R":m, "G":m, "B":m};
         }
         
-        result.R *= 255.0;
-        result.G *= 255.0;
-        result.B *= 255.0;
+        result.R = Math.round(result.R * 255.0);
+        result.G = Math.round(result.G * 255.0);
+        result.B = Math.round(result.B * 255.0);
         
         return result;
     },
@@ -46,7 +47,8 @@ window.ImageUtils = {
      * @param red The red component of the color in degrees [0, 255].
      * @param green The green component of the color in range [0, 255].
      * @param blue The blue component of the color in range [0, 255].
-     * NOTE: hue calculation is broken.
+     * @return RGB color object {"H": FLOAT, "S": FLOAT, "L": FLOAT} where "H" is [0, 360) and "S"
+     * "L" are both [0, 1].
      */
     "rgbToHsl" : function(red, green, blue) {
         var min, max;
@@ -69,19 +71,22 @@ window.ImageUtils = {
         if (min == max) {
             sat = 0;
         } else if (light < 0.5) {
-            sat = (max - min) / (max + min);
+            sat = Math.abs((max - min) / (max + min));
         } else {
-            sat = (max - min) / (2.0 - max - min);
+            sat = Math.abs((max - min) / (2.0 - max - min));
         }
         
         var hue;
-        if (red > green && red > blue) {
-            hue = (green - blue) / (max - min);
+        if (min == max) {
+            hue = 0;
+        } else if (red > green && red > blue) {
+            hue = Math.abs(green - blue) / (max - min);
         } else if (green > red && green > blue) {
-            hue = 2.0 + ((blue - red) / (max - min));
+            hue = 2.0 + (Math.abs(blue - red) / (max - min));
         } else {
-            hue = 4.0 + ((red - green) / (max - min));
+            hue = 4.0 + (Math.abs(red - green) / (max - min));
         }
+        hue *= 60.0;
         
         return {"H" : hue, "S" : sat, "L" : light};
     },

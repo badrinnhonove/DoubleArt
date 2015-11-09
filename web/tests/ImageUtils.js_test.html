@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>ImageUtils.js Test</title>
+    </head>
+    
+    <body>
+        <h2>See JavaScript console for output.</h2>
+        
+        <script src="../ImageUtils.js"></script>
+        <script>
+            function checkRgb(c1, c2) {
+                if (c1.R != c2.R || c1.G != c2.G || c1.B != c2.B) {
+                    console.log("Test failed:");
+                    console.log(c1);
+                    console.log(c2);
+                    throw "Test failed";
+                }
+            }
+            
+            function checkHsl(c1, c2) {
+                if (!isSimilar(c1.H, c2.H) || !isSimilar(c1.S, c2.S) || !isSimilar(c1.L, c2.L)) {
+                    console.log("Test failed:");
+                    console.log(c1);
+                    console.log(c2);
+                    throw "Test failed";
+                }
+            }
+            
+            function isSimilar(v1, v2) {
+                return Math.abs(v1 - v2) < 0.001;
+            }
+            
+            function runTests() {
+                var want;
+                var got;
+                
+                // red
+                want = {"H": 0, "S": 1, "L": 0.5};
+                got = ImageUtils.rgbToHsl(255, 0, 0);
+                checkHsl(want, got);
+                
+                // green
+                want = {"H": 120, "S": 1, "L": 0.5};
+                got = ImageUtils.rgbToHsl(0, 255, 0);
+                checkHsl(want, got);
+                
+                // blue
+                want = {"H": 240, "S": 1, "L": 0.5};
+                got = ImageUtils.rgbToHsl(0, 0, 255);
+                checkHsl(want, got);
+                
+                // yellow
+                want = {"H": 60, "S": 1, "L": 0.5};
+                got = ImageUtils.rgbToHsl(255, 255, 0);
+                checkHsl(want, got);
+                
+                // cyan
+                want = {"H": 180, "S": 1, "L": 0.5};
+                got = ImageUtils.rgbToHsl(0, 255, 255);
+                checkHsl(want, got);
+                
+                // magenta
+                want = {"H": 300, "S": 1, "L": 0.5};
+                got = ImageUtils.rgbToHsl(255, 0, 255);
+                checkHsl(want, got);
+                
+                // black
+                want = {"H": 0, "S": 0, "L": 0};
+                got = ImageUtils.rgbToHsl(0, 0, 0);
+                checkHsl(want, got);
+                
+                // middle grey
+                want = {"H": 0, "S": 0, "L": 0.498};
+                got = ImageUtils.rgbToHsl(127, 127, 127);
+                checkHsl(want, got);
+                
+                // white
+                want = {"H": 0, "S": 0, "L": 1};
+                got = ImageUtils.rgbToHsl(255, 255, 255);
+                checkHsl(want, got);
+                
+                // unique #1
+                want = {"H": 149, "S": 0.7, "L": 0.275};
+                got = ImageUtils.rgbToHsl(21, 119, 68);
+                checkHsl(want, got);
+                
+                
+                console.log("---------------------------------");
+                console.log("All tests passed!");
+                console.log("---------------------------------");
+            }
+            
+            runTests();
+        </script>
+    </body>
+</html>
