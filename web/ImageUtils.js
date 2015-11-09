@@ -47,7 +47,7 @@ window.ImageUtils = {
      * @param red The red component of the color in degrees [0, 255].
      * @param green The green component of the color in range [0, 255].
      * @param blue The blue component of the color in range [0, 255].
-     * @return RGB color object {"H": FLOAT, "S": FLOAT, "L": FLOAT} where "H" is [0, 360) and "S"
+     * @return HSL color object {"H": FLOAT, "S": FLOAT, "L": FLOAT} where "H" is [0, 360) and "S"
      * "L" are both [0, 1].
      */
     "rgbToHsl" : function(red, green, blue) {
