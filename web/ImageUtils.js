@@ -52,41 +52,47 @@ window.ImageUtils = {
      */
     "rgbToHsl" : function(red, green, blue) {
         var min, max;
-        if (red < green && red < blue) {
-            min = red;
-            max = green < blue ? blue : green;
-        } else if (green < red && green < blue) {
-            min = green;
-            max = red < blue ? blue : red;
+        var r = red / 255.0;
+        var g = green / 255.0;
+        var b = blue / 255.0;
+
+        // NOTE: Red needs to take priority over green, hence "<=".
+        if (r <= g && r < blue) {
+            min = r;
+            max = g < b ? b : g;
+        } else if (g < r && g < b) {
+            min = g;
+            max = r < b ? b : r;
         } else {
-            min = blue;
-            max = red < green ? green : red;
+            min = b;
+            max = r < g ? g : r;
         }
-        min /= 255.0;
-        max /= 255.0;
         
         var light = (min + max) / 2.0;
+        var d = max - min;
+
         var sat;
-        
         if (min == max) {
-            sat = 0;
-        } else if (light < 0.5) {
-            sat = Math.abs((max - min) / (max + min));
+            sat = 0.0;
         } else {
-            sat = Math.abs((max - min) / (2.0 - max - min));
+            sat = Math.abs(d / (1 - Math.abs((2 * light) - 1)));
         }
         
         var hue;
         if (min == max) {
-            hue = 0;
-        } else if (red > green && red > blue) {
-            hue = Math.abs(green - blue) / (max - min);
-        } else if (green > red && green > blue) {
-            hue = 2.0 + (Math.abs(blue - red) / (max - min));
+            hue = 0.0;
+        } else if (r >= g && r > b) {
+            hue = ((g - b) / d) % 6;
+        } else if (g > r && g > b) {
+            hue = 2.0 + ((b - r) / d);
         } else {
-            hue = 4.0 + (Math.abs(red - green) / (max - min));
+            hue = 4.0 + ((r - g) / d);
         }
         hue *= 60.0;
+        
+        if (hue < 0) {
+            hue += 360.0;
+        }
         
         return {"H" : hue, "S" : sat, "L" : light};
     },

@@ -35,6 +35,8 @@
                 var want;
                 var got;
                 
+                // ---------- Convert from RGB to HSL ----------
+                
                 // red
                 want = {"H": 0, "S": 1, "L": 0.5};
                 got = ImageUtils.rgbToHsl(255, 0, 0);
@@ -80,11 +82,82 @@
                 got = ImageUtils.rgbToHsl(255, 255, 255);
                 checkHsl(want, got);
                 
-                // unique #1
-                want = {"H": 149, "S": 0.7, "L": 0.275};
+                // unique #1 (dark green-blue)
+                want = {"H": 148.776, "S": 0.7, "L": 0.275};
                 got = ImageUtils.rgbToHsl(21, 119, 68);
                 checkHsl(want, got);
                 
+                // unique #2 (pale dark purple)
+                want = {"H": 328.333, "S": 0.360, "L": 0.608};
+                got = ImageUtils.rgbToHsl(191, 119, 157);
+                checkHsl(want, got);
+                
+                // unique #3 (beige)
+                want = {"H": 37.311, "S": 0.704, "L": 0.669};
+                got = ImageUtils.rgbToHsl(230, 185, 111);
+                checkHsl(want, got);
+                
+                // ---------- Now convert from HSL to RGB ----------
+                
+                // red
+                want = {"R": 255, "G": 0, "B": 0};
+                got = ImageUtils.hslToRgb(0, 1, 0.5);
+                checkRgb(want, got);
+                
+                // green
+                want = {"R": 0, "G": 255, "B": 0};
+                got = ImageUtils.hslToRgb(120, 1, 0.5);
+                checkRgb(want, got);
+                
+                // blue
+                want = {"R": 0, "G": 0, "B": 255};
+                got = ImageUtils.hslToRgb(240, 1, 0.5);
+                checkRgb(want, got);
+                
+                // yellow
+                want = {"R": 255, "G": 255, "B": 0};
+                got = ImageUtils.hslToRgb(60, 1, 0.5);
+                checkRgb(want, got);
+                
+                // cyan
+                want = {"R": 0, "G": 255, "B": 255};
+                got = ImageUtils.hslToRgb(180, 1, 0.5);
+                checkRgb(want, got);
+                
+                // magenta
+                want = {"R": 255, "G": 0, "B": 255};
+                got = ImageUtils.hslToRgb(300, 1, 0.5);
+                checkRgb(want, got);
+                
+                // black
+                want = {"R": 0, "G": 0, "B": 0};
+                got = ImageUtils.hslToRgb(0, 0, 0);
+                checkRgb(want, got);
+                
+                // middle grey
+                want = {"R": 127, "G": 127, "B": 127};
+                got = ImageUtils.hslToRgb(0, 0, 0.498);
+                checkRgb(want, got);
+                
+                // white
+                want = {"R": 255, "G": 255, "B": 255};
+                got = ImageUtils.hslToRgb(0, 0, 1);
+                checkRgb(want, got);
+                
+                // unique #1 (dark green-blue)
+                want = {"R": 21, "G": 119, "B": 68};
+                got = ImageUtils.hslToRgb(148.776, 0.7, 0.275);
+                checkRgb(want, got);
+                
+                // unique #2 (pale dark purple)
+                want = {"R": 191, "G": 119, "B": 157};
+                got = ImageUtils.hslToRgb(328.333, 0.360, 0.608);
+                checkRgb(want, got);
+                
+                // unique #3 (beige)
+                want = {"R": 230, "G": 185, "B": 111};
+                got = ImageUtils.hslToRgb(37.311, 0.704, 0.669);
+                checkRgb(want, got);
                 
                 console.log("---------------------------------");
                 console.log("All tests passed!");
