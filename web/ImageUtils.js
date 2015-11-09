@@ -50,38 +50,42 @@ window.ImageUtils = {
      */
     "rgbToHsl" : function(red, green, blue) {
         var min, max;
-        if (red < green && red < blue) {
-            min = red;
-            max = green < blue ? blue : green;
-        } else if (green < red && green < blue) {
-            min = green;
-            max = red < blue ? blue : red;
+        var r = red / 255.0;
+        var g = green / 255.0;
+        var b = blue / 255.0;
+
+        if (r < g && r < blue) {
+            min = r;
+            max = g < b ? b : g;
+        } else if (g < r && g < b) {
+            min = g;
+            max = r < b ? b : r;
         } else {
-            min = blue;
-            max = red < green ? green : red;
+            min = b;
+            max = r < g ? g : r;
         }
-        min /= 255.0;
-        max /= 255.0;
         
         var light = (min + max) / 2.0;
+        var d = max - min;
+
         var sat;
-        
         if (min == max) {
-            sat = 0;
-        } else if (light < 0.5) {
-            sat = (max - min) / (max + min);
+            sat = 0.0;
         } else {
-            sat = (max - min) / (2.0 - max - min);
+            sat = Math.abs(d / (1 - Math.abs((2 * light) - 1)));
         }
         
         var hue;
-        if (red > green && red > blue) {
-            hue = (green - blue) / (max - min);
-        } else if (green > red && green > blue) {
-            hue = 2.0 + ((blue - red) / (max - min));
+        if (min == max) {
+            hue = 0.0;
+        } else if (r > g && r > b) {
+            hue = ((g - b) / d) % 6;
+        } else if (g > r && g > b) {
+            hue = 2.0 + ((b - r) / d);
         } else {
-            hue = 4.0 + ((red - green) / (max - min));
+            hue = 4.0 + ((r - g) / d);
         }
+        hue *= 60.0;
         
         return {"H" : hue, "S" : sat, "L" : light};
     },
